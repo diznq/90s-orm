@@ -20,8 +20,18 @@ Every ORM object must implement `with_orm` trait and optionally also have `WITH_
 
 The reason `ORM ID` is mainly optimization, when if working in loops, `get_orm()` can be called just once with `NULL` object to retrieve relative offsets of the attributes.
 
+`to_native` converts from string form to native C++ form, i.e. `string -> int`
+`from_native` converts from native C++ form to string form, i.e. `int -> string`
+
+There are also some helper methods for converting between `any` and `dict<string, string>` which is quite useful for SQL adapters, as SQL queries can be converted from `data = vector<dict<string, string>>` to `result vector<T>` using `result = transform<T>(data);` and vice versa.
+
 ### Examples
 
 See `examples/` folder of the project with `coder.cpp` example that both decodes and encodes a JSON.
 
 To compile, use `g++ -std=c++23 -Isrc/ examples/coder.cpp -o ./decoder`
+
+## TODO
+
+- Missing support for `\u1234` codes both in encoder and decoder
+- Missing support for `map<std::string, T>` encoding
