@@ -8,7 +8,7 @@
 #include <format>
 #include <cstdint>
 #include <type_traits>
-#ifdef S90_SHARED
+#ifdef S90_SHARED_ORM
 #include "../shared.hpp"
 #else
 #include <unordered_map>
