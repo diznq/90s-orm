@@ -33,5 +33,4 @@ To compile, use `g++ -std=c++23 -Isrc/ examples/coder.cpp -o ./decoder`
 
 ## TODO
 
-- Missing support for `\u1234` codes both in encoder and decoder
 - Missing support for `map<std::string, T>` encoding

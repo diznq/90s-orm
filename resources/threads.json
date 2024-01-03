@@ -1,7 +1,7 @@
 [
     {
         "id": 1,
-        "name": "Greek philosophers",
+        "name": "Greek philosophers \uD83D\uDE04",
         "posts": [
             {
                 "id": 1,
@@ -18,7 +18,7 @@
     },
     {
         "id": 2,
-        "name": "Roman philosophers",
+        "name": "Roman philosophers \uD83D\uDE0A",
         "posts": [
             {
                 "id": 3,

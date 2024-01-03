@@ -2,3 +2,4 @@ private/
 bin/
 *.exe
 resources/threads_new.json
+.vscode/

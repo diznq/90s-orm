@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
+#include <chrono>
 #include <90s/orm/json.hpp>
 
 using namespace s90::orm;
@@ -40,7 +41,7 @@ struct thread : public with_orm {
 };
 
 int main(int argc, const char **argv) {
-    std::ifstream ifs("resources/threads.json");
+    std::ifstream ifs(argc >= 2 ? argv[1] : "resources/threads.json");
     if(ifs) {
         json_decoder dec;
 
@@ -48,7 +49,9 @@ int main(int argc, const char **argv) {
         ss << ifs.rdbuf();
         ifs.close();
 
+        auto start = std::chrono::high_resolution_clock::now();
         auto result = dec.decode<std::vector<thread>>(ss.str());
+        auto end = std::chrono::high_resolution_clock::now();
         if(result) {
             auto& threads = *result;
             for(auto t : threads) {
@@ -76,10 +79,20 @@ int main(int argc, const char **argv) {
                 }
             });
 
+            std::cout << "Decoding took " << std::chrono::duration<double>(end - start).count() << " seconds" << std::endl;
+
             json_encoder enc;
+            start = std::chrono::high_resolution_clock::now();
+            auto encoded = enc.encode(threads);
+            end = std::chrono::high_resolution_clock::now();
+            
+            std::cout << "Encoding took " << std::chrono::duration<double>(end - start).count() << " seconds" << std::endl;
+            
             std::ofstream ofs("resources/threads_new.json", std::ios::binary);
-            ofs << enc.encode(threads);
-            ofs.close();
+            if(ofs) {
+                ofs << encoded;
+                ofs.close();
+            }
         } else {
             std::cerr << result.error() << std::endl;
         }
