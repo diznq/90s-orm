@@ -206,6 +206,7 @@ namespace s90 {
                                 in >> std::skipws;
                                 carried = c;
                                 return in;
+                                break;
                             default:
                                 tok += c;
                                 break;
