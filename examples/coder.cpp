@@ -40,8 +40,18 @@ struct thread : public with_orm {
     }
 };
 
+/// @brief Run as bin/coder file_name, use -p flag to force printing the read JSON
+/// @param argc number of args
+/// @param argv args
+/// @return status
 int main(int argc, const char **argv) {
-    std::ifstream ifs(argc >= 2 ? argv[1] : "resources/threads.json");
+    std::string target_file = "resources/threads.json";
+    bool do_print = false;
+    for(int i = 0; i < argc; i++) {
+        if(argv[i] == std::string("-p")) do_print = true;
+        else if(i >= 1) target_file = argv[i];
+    }
+    std::ifstream ifs(target_file);
     if(ifs) {
         json_decoder dec;
 
@@ -50,18 +60,21 @@ int main(int argc, const char **argv) {
         ifs.close();
 
         auto start = std::chrono::high_resolution_clock::now();
-        auto result = dec.decode<std::vector<thread>>(ss.str());
+        auto result = dec.decode<std::vector<thread>>(ss);
         auto end = std::chrono::high_resolution_clock::now();
         if(result) {
             auto& threads = *result;
-            for(auto t : threads) {
-                std::cout << "Thread: " << t.name << std::endl << std::endl;
-                for(auto& p : t.posts) {
-                    std::cout << "#" << p.id << " | Author: " << p.author << std::endl;
-                    if(p.created_at) {
-                        std::cout << "Created at: " << p.created_at->ymdhis() << std::endl;
+
+            if(do_print) {
+                for(auto t : threads) {
+                    std::cout << "Thread: " << t.name << std::endl << std::endl;
+                    for(auto& p : t.posts) {
+                        std::cout << "#" << p.id << " | Author: " << p.author << std::endl;
+                        if(p.created_at) {
+                            std::cout << "Created at: " << p.created_at->ymdhis() << std::endl;
+                        }
+                        std::cout << p.text << std::endl << std::endl;
                     }
-                    std::cout << p.text << std::endl << std::endl;
                 }
             }
 
