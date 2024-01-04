@@ -9,7 +9,36 @@
 namespace s90 {
     namespace orm {
 
-        struct timestamp {
+        class timestamp {
+        protected:
+            static time_t utc_unix_timestamp(const std::tm *t)  {
+                time_t y = t->tm_year + 1900;
+                int i = 0;
+                int cummulative_days[] =    {   0, 31, 
+                                                28 + (y % 4 == 0 && (y % 400 == 0 || y % 100 != 0)), 
+                                                31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+                                            };
+                const int non_leap[] = {2100, 2200, 2300,  2500, 2600, 2700, 2900, 3000};
+                
+                for(int i = 1; i < 12; i++) {
+                    cummulative_days[i] = cummulative_days[i]  + cummulative_days[i - 1];
+                }
+
+                time_t days = (y - 1970) * 365 - 1;
+
+                y -= 1;
+                days +=  ((y - 1970) / 4);
+                while(y >= non_leap[i]) {
+                    days--;
+                    i++;
+                }
+
+                days += cummulative_days[t->tm_mon] + t->tm_mday;
+                time_t seconds = days * 86400 + t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec;
+                return seconds;
+            }
+
+        public:
             std::chrono::system_clock::time_point point = std::chrono::system_clock::now();
 
             timestamp operator-(size_t t) {
@@ -50,7 +79,7 @@ namespace s90 {
                     time.tm_hour = h; 
                     time.tm_min = i;
                     time.tm_sec = s;
-                    point = std::chrono::system_clock::time_point(std::chrono::seconds(std::mktime(&time)));
+                    point = std::chrono::system_clock::time_point(std::chrono::seconds(utc_unix_timestamp(&time)));
                     return true;
                 } else {
                     size_t secs = 0;
@@ -112,7 +141,8 @@ namespace s90 {
             }
         };
 
-        struct datetime : public timestamp {
+        class datetime : public timestamp {
+        public:
             datetime operator-(size_t t) {
                 return datetime{ point - std::chrono::seconds(t) };
             }
