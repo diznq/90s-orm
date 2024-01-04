@@ -87,7 +87,7 @@ int main(int argc, const char **argv) {
                         .id = 4,
                         .author = "diznq",
                         .text = "I think 80's is a great project!",
-                        .created_at = datetime()
+                        .created_at = datetime::now()
                     }
                 }
             });
