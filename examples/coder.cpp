@@ -29,12 +29,14 @@ struct thread : public with_orm {
 
     int id;
     std::string name;
+    optional<std::vector<std::string>> tags;
     std::vector<post> posts;
 
     mapper get_orm() {
         return {
             {"id", id},
             {"name", name},
+            {"tags", tags},
             {"posts", posts}
         };
     }
@@ -82,6 +84,7 @@ int main(int argc, const char **argv) {
             threads.emplace_back(thread {
                 .id = 3,
                 .name = "90's",
+                .tags = {{"software", "programming"}},
                 .posts = {
                     post {
                         .id = 4,

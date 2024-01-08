@@ -70,8 +70,8 @@ namespace s90 {
                 return value_;
             }
 
-            T* operator->() {
-                return &value_;
+            T* operator->() const {
+                return const_cast<T*>(&value_);
             }
 
             explicit operator bool() const {
@@ -543,7 +543,10 @@ namespace s90 {
             /// @brief Push an item to the underlying array
             /// @param v item to be pushed
             any push_back(const any& v, uintptr_t offset = 0) const {
-                if(auto fn = internals.push_back) return fn(ref + offset, v);
+                if(auto fn = internals.push_back) {
+                    any res = fn(ref + offset, v);
+                    return res;
+                }
                 return {};
             }
 
@@ -715,15 +718,18 @@ namespace s90 {
                 std::vector<T> *tr = (std::vector<T>*)ref;
                 if(value.get_type() == reftype::empty) {
                     tr->push_back(T{});
-                    return any(tr->back());
+                    T& b = tr->back();
+                    return any(b);
                 } else {
                     tr->push_back(*(T*)value.get_ref());
-                    return any(tr->back());
+                    T& b = tr->back();
+                    return any(b);
                 }
             };
             internals.get_item = [](const uintptr_t ref, size_t index) -> auto {
-                const std::vector<T> *tr = (const std::vector<T>*)ref;
-                return any(tr->at(index));
+                std::vector<T> *tr = (std::vector<T>*)ref;
+                T& b = tr->at(index);
+                return any(b);
             };
             internals.size = [](const uintptr_t ref) -> auto {
                 const std::vector<T> *tr = (const std::vector<T>*)ref;

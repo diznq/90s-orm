@@ -2,6 +2,7 @@
     {
         "id": 1,
         "name": "Greek philosophers \uD83D\uDE04",
+        "tags": ["philosophy", "history", "Ancient Greece"],
         "posts": [
             {
                 "id": 1,
@@ -19,6 +20,7 @@
     {
         "id": 2,
         "name": "Roman philosophers \uD83D\uDE0A",
+        "tags": ["philosophy", "history", "Roman empire"],
         "posts": [
             {
                 "id": 3,
