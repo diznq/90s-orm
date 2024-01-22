@@ -1,36 +1,74 @@
-# 90's ORM
+# 90's ORM - a C++ JSON Library
 
-This repository contains ORM source code of [90's](https://github.com/diznq/80s/tree/main/src/90s)
+This is a simple and easy-to-use C++ library for encoding and decoding JSON data. It supports the following features:
 
-## Abstract
+- Automatic mapping of C++ structs to JSON objects using the with_orm base class and the `WITH_ID` macro.
+- Optional fields using the `orm::optional<T>` template class.
+- Arrays using `std::vector<T>`
+- Automatic validation on the fly
 
-Dealing with serialization / deserialization and also validation in C++ is often times pretty cumberesome and annoying. 
+## Example
 
-90's ORM tries to solve this issue by providing `any` type that can hold native types, strings, optionals, vectors and other objects that implement `with_orm` trait.
+Suppose you have a C++ struct that represents a thread in a forum, with an id, a name, a list of tags, and a list of posts:
 
-This makes it a flexible alternative that also comes with validation out of the box, since type of the underlying object is always known.
+```cpp
+struct post : public with_orm {
+    WITH_ID;
+    int id;
+    std::string author;
+    std::string text;
+    optional<datetime> created_at;
 
-## Usage
+    mapper get_orm() {
+        return {
+            {"id", id},
+            {"author", author},
+            {"text", text},
+            {"created_at", created_at}
+        };
+    }
+};
 
-Library consists of just a few header files, so to use it, simply include it and use `s90::orm` namespace.
+struct thread : public with_orm {
+    WITH_ID;
 
-### Basic concepts
+    int id;
+    std::string name;
+    optional<std::vector<std::string>> tags;
+    std::vector<post> posts;
 
-Every ORM object must implement `with_orm` trait and optionally also have `WITH_ID;` or implement `static uintptr_t get_orm_id() { ... }` that returns unique value for each class. 
+    mapper get_orm() {
+        return {
+            {"id", id},
+            {"name", name},
+            {"tags", tags},
+            {"posts", posts}
+        };
+    }
+};
+```
 
-The reason `ORM ID` is mainly optimization, when if working in loops, `get_orm()` can be called just once with `NULL` object to retrieve relative offsets of the attributes.
+You can easily decode a JSON file that contains a thread object using the `json_decoder` class:
 
-`to_native` converts from string form to native C++ form, i.e. `string -> int`
-`from_native` converts from native C++ form to string form, i.e. `int -> string`
+```cpp
+json_decoder dec;
+auto forum_thread = dec.decode<thread>(std::ifstream("file.json"));
+```
 
-There are also some helper methods for converting between `any` and `dict<string, string>` which is quite useful for SQL adapters, as SQL queries can be converted from `data = vector<dict<string, string>>` to `result vector<T>` using `result = transform<T>(data);` and vice versa.
+The `json_decoder` class will automatically map the JSON fields to the corresponding C++ struct fields, using the `get_orm` method. If a field is missing or has a different type, an expected error is returned.
 
-### Examples
+You can also encode a C++ struct to a JSON string using the json_encoder class:
 
-See `examples/` folder of the project with `coder.cpp` example that both decodes and encodes a JSON.
+```cpp
+json_encoder enc;
+std::string encoded = enc.encode(forum_thread);
+```
 
-To compile, use `g++ -std=c++23 -Isrc/ examples/coder.cpp -o ./decoder`
+The `json_encoder` class will automatically convert the C++ struct fields to JSON fields, using the `get_orm` method. You can also customize the encoding options, such as the indentation, the quotation mark, and the separator.
 
-## TODO
+## Installation
+To use this library, you need to include the header file `90s/orm/json.hpp` in your project and use the `s90::orm` namespace.
 
-- Missing support for `map<std::string, T>` encoding
+## License
+
+This code is licensed under BSD 3-Clause License
